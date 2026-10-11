@@ -1,0 +1,22 @@
+name: Build Flyygeli OS ISO
+on: workflow_dispatch
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+      options: --privileged
+    steps:
+      - run: pacman -Syu --noconfirm archiso sudo git base-devel unzip
+      - uses: actions/checkout@v4
+      - run: unzip flyygeli-os-build-kit.zip
+      - run: cd flyygeli-os && bash build.sh
+        env:
+          OUT: ${{ github.workspace }}/out
+          WORK: /tmp/flyygeli-build
+          LITE: "1"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: flyygeli-os-iso
+          path: out/*.iso
+          compression-level: 0
